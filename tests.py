@@ -7,7 +7,7 @@ class DecoderTestCase(unittest.TestCase):
     def test_decodes_string(self):
         result = bencode.decode(b'3:foo')
 
-        self.assertEqual(result, u'foo')
+        self.assertEqual(result, b'foo')
 
     def test_decodes_integer(self):
         result = bencode.decode(b'i999e')
@@ -22,15 +22,20 @@ class DecoderTestCase(unittest.TestCase):
     def test_decodes_list(self):
         result = bencode.decode(b'l3:foo3:bare')
 
-        self.assertEqual(result, [u'foo', u'bar'])
+        self.assertEqual(result, [b'foo', b'bar'])
 
     def test_decodes_dict(self):
         result = bencode.decode(b'd4:spaml1:a1:bee')
 
-        self.assertEqual(result, {u'spam': [u'a', u'b']})
+        self.assertEqual(result, {b'spam': [b'a', b'b']})
+
+    def test_decodes_dict_with_long_keys(self):
+        result = bencode.decode(b'd19:the quick brown foxi1ee')
+
+        self.assertEqual(result, {b'the quick brown fox': 1})
 
     def test_errors_for_str_input(self):
-        with self.assertRaisesRegexp(AssertionError, 'Argument must be of type'):
+        with self.assertRaisesRegex(AssertionError, 'Argument must be of type'):
             bencode.decode('3:foo')
 
 
@@ -60,8 +65,13 @@ class EncodeTestCase(unittest.TestCase):
 
         self.assertEqual(result, b'd4:spaml1:a1:bee')
 
+    def test_encodes_dict_with_long_keys(self):
+        result = bencode.encode({u'the quick brown fox': True})
+
+        self.assertEqual(result, b'd19:the quick brown foxi1ee')
+
     def test_errors_for_incompatible_types(self):
-        with self.assertRaisesRegexp(TypeError, 'Cannot encode type'):
+        with self.assertRaisesRegex(TypeError, 'Cannot encode type'):
             bencode.encode(1.0)
 
 

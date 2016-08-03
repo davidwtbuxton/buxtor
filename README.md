@@ -21,9 +21,11 @@ Encode basic Python data types with `buxtor.bencode.encode`:
 Decode a bencoded byte string with `buxtor.bencode.decode`:
 
     >>> buxtor.bencode.decode(b'd4:spaml1:a1:bee')
-    {'spam': ['a', 'b']}
+    {b'spam': [b'a', b'b']}
 
-Encoding types other than `str`, `list`, `tuple`, `dict`, `int`, and `bool` will raise a TypeError exception:
+N.B. Encoding will use UTF-8 encoding, but decoding returns bytes as-is, because the value may not be valid UTF-8.
+
+Encoding types other than `str`, `bytes`, `list`, `tuple`, `dict`, `int`, and `bool` will raise a TypeError exception:
 
     >>> buxtor.bencode.encode({1, 2, 3})
     Traceback (most recent call last):

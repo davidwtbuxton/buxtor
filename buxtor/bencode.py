@@ -55,7 +55,10 @@ def _decode(iter_val):
         length = int(length)
 
         value = itertools.islice(iter_val, 0, length)
-        value = bytes(value).decode('utf-8')
+        value = bytes(value)
+        # Text should be encoded with UTF-8, but the str values can be any
+        # byte sequence, doesn't have to be valid UTF-8 (as with the sha-1
+        # piece hashes).
 
         return value
 
@@ -63,10 +66,12 @@ def _decode(iter_val):
 def encode(obj):
     """Encodes a Python object and returns a byte string."""
     if isinstance(obj, str):
-        str_value = obj.encode('utf-8')
-        str_length = len(str_value)
+        obj = obj.encode('utf-8')
 
-        return str(str_length).encode('utf-8') + b':' + str_value
+    if isinstance(obj, bytes):
+        length = len(obj)
+
+        return str(length).encode('utf-8') + b':' + obj
 
     elif isinstance(obj, int):
         # Also handles True and False.
@@ -90,3 +95,15 @@ def encode(obj):
 
     else:
         raise TypeError('Cannot encode type %s' % type(obj))
+
+
+if __name__ == '__main__':
+    # Use this as a script to pretty-print data.
+    # python -m buxtor.bencode my.torrent
+    import pprint
+    import sys
+
+    with open(sys.argv[1], 'rb') as fh:
+        value = fh.read()
+        obj = decode(value)
+        pprint.pprint(obj)
