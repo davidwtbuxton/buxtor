@@ -106,4 +106,8 @@ if __name__ == '__main__':
     with open(sys.argv[1], 'rb') as fh:
         value = fh.read()
         obj = decode(value)
+
+        # Hide pieces, it's a lot of data.
+        obj[b'info'][b'pieces'] = b'...'
+
         pprint.pprint(obj)
